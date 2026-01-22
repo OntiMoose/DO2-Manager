@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.mat0u5.do2manager.Main;
 
+import static net.mat0u5.do2manager.utils.PermissionManager.isMapBot;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -105,15 +107,17 @@ public class DiscordUtils {
     }
 
     public void updateDiscordChannelDescription() {
-        // My attempt at adding a config check?
         boolean descriptionUpdate = Main.config.getProperty("stop_discord_channel_update").equalsIgnoreCase("true");
             if (descriptionUpdate == false) {
         List<ServerPlayerEntity> players = Main.server.getPlayerManager().getPlayerList();
         List<String> playerNames = new ArrayList<>();
         for (ServerPlayerEntity player : players) {
+            // Remove any player considered a MapBot
+            if (isMapBot(player)) {
+                continue;
+            }
             playerNames.add(player.getNameForScoreboard());
         }
-        if (playerNames.contains("TangoCam")) playerNames.remove("TangoCam");
         String description = "Players online (" + playerNames.size() + "): " + String.join(", ",playerNames);
         DiscordBot discordBot = new DiscordBot();
         discordBot.startBot(getWebhookToken(), getChatChannelId(),true,description);}

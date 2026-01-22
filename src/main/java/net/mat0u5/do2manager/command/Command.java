@@ -259,7 +259,7 @@ public class Command {
                     )
                 )
                 .then(literal("testing")
-                    .requires(source -> ((isModOwner(source.getPlayer()) || (source.getEntity() == null))))
+                    .requires(source -> ((isAdmin(source.getPlayer()) || (source.getEntity() == null))))
                     .executes(context -> TestingCommand.execute(
                         context.getSource())
                     )
@@ -620,27 +620,15 @@ public class Command {
                             context.getSource(),1
                         )
                     )
-                    .then(argument("skipTurns", IntegerArgumentType.integer(1))
-                        .executes(context -> QueueCommand.skipTurn(
-                                context.getSource(),IntegerArgumentType.getInteger(context,"skipTurns")
-                            )
-                        )
-                    )
                     .then(argument("player", player())
                         .requires(source -> ((isAdmin(source.getPlayer()) || (source.getEntity() == null))))
                         .executes(context -> QueueCommand.skipTurnOther(
-                            context.getSource(),getPlayer(context,"player"),1
+                            context.getSource(),getPlayer(context,"players")
                         ))
-                        .then(argument("skipTurns", IntegerArgumentType.integer(1))
-                            .executes(context -> QueueCommand.skipTurnOther(
-                                            context.getSource(),getPlayer(context,"player"),IntegerArgumentType.getInteger(context,"skipTurns")
-                                    )
-                            )
-                        )
                     )
                 )
                 .then(literal("finishRun")
-                    .requires(source -> ((isModOwner(source.getPlayer()) || (source.getEntity() == null))))
+                    .requires(source -> ((isAdmin(source.getPlayer()) || (source.getEntity() == null))))
                     .then(argument("targets", EntityArgumentType.players())
                         .executes(context -> QueueCommand.runFinish(
                                 context.getSource(),
@@ -650,22 +638,20 @@ public class Command {
                 )
                 .then(literal("add")
                     .requires(source -> ((isAdmin(source.getPlayer()) || (source.getEntity() == null))))
-                    .then(argument("player", player())
+                    .then(argument("targets", EntityArgumentType.players())
                         .executes(context -> QueueCommand.addPlayerToQueue(
-                            context.getSource(),getPlayer(context,"player")
+                            context.getSource(),
+                            EntityArgumentType.getPlayers(context,"targets")
                         ))
                     ))
                 .then(literal("remove")
                     .requires(source -> ((isAdmin(source.getPlayer()) || (source.getEntity() == null))))
-                    .then(argument("target", StringArgumentType.string())
-                        .suggests(QueueCommand.getQueuePlayersSuggestionProvider())
+                    .then(argument("targets", EntityArgumentType.players())
                         .executes(context -> QueueCommand.removePlayerFromQueue(
-                            context.getSource(),StringArgumentType.getString(context,"target")
+                            context.getSource(),
+                            EntityArgumentType.getPlayers(context,"targets")
                         ))
                     ))
-                .then(literal("move")
-                    .requires(source -> ((isAdmin(source.getPlayer()) || (source.getEntity() == null))))
-                    .executes(QueueCommand::moveQueue))
         );
 
         dispatcher.register(

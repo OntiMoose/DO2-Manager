@@ -2,6 +2,8 @@ package net.mat0u5.do2manager.queue;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+
+import net.mat0u5.do2manager.utils.OtherUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -16,8 +18,9 @@ public class QueueCommand {
     public static int joinQueue(ServerCommandSource source) {
         MinecraftServer server = source.getServer();
         final PlayerEntity self = source.getPlayer();
-
-        dungeonQueue.addToQueue(self,false);
+  
+        String command = "execute as "+self.getUuidAsString()+" run trigger do2queue set 2";
+        OtherUtils.executeCommand(server,command);
         return 1;
     }
 
@@ -25,7 +28,8 @@ public class QueueCommand {
         MinecraftServer server = source.getServer();
         final PlayerEntity self = source.getPlayer();
 
-        dungeonQueue.removeFromQueue(self);
+        String command = "execute as "+self.getUuidAsString()+" run trigger do2queue set 3";
+        OtherUtils.executeCommand(server,command);
         return 1;
     }
 
@@ -33,64 +37,53 @@ public class QueueCommand {
         MinecraftServer server = source.getServer();
         final PlayerEntity self = source.getPlayer();
 
-        dungeonQueue.skipTurns(self, skipTurns,false);
+        String command = "execute as "+self.getUuidAsString()+" run trigger do2queue set 4";
+        OtherUtils.executeCommand(server,command);
         return 1;
     }
-    public static int skipTurnOther(ServerCommandSource source, ServerPlayerEntity target,int skipTurns) {
+    public static int skipTurnOther(ServerCommandSource source, ServerPlayerEntity target) {
         MinecraftServer server = source.getServer();
-        final PlayerEntity self = source.getPlayer();
 
-        dungeonQueue.skipTurns(target, skipTurns,true);
+        String command = "execute as "+target.getNameForScoreboard()+" run trigger do2queue set 4";
+        OtherUtils.executeCommand(server,command);
         return 1;
     }
     public static int runFinish(ServerCommandSource source, Collection<? extends ServerPlayerEntity> targets) {
         MinecraftServer server = source.getServer();
-        final PlayerEntity self = source.getPlayer();
-
-        if (targets.isEmpty()) return -1;
-
-        dungeonQueue.putAtEnd(targets);
+        
+        for (ServerPlayerEntity player : targets) {
+        String command = "execute as "+player.getNameForScoreboard()+" run trigger do2queue set 5";
+        OtherUtils.executeCommand(server,command);
+        }
         return 1;
     }
 
-    public static int addPlayerToQueue(ServerCommandSource source, ServerPlayerEntity target) {
+    public static int addPlayerToQueue(ServerCommandSource source, Collection<? extends ServerPlayerEntity> targets) {
         MinecraftServer server = source.getServer();
-        final PlayerEntity self = source.getPlayer();
 
-        dungeonQueue.addToQueue(target,true);
+        for (ServerPlayerEntity player : targets) {
+        String command = "execute as "+player.getNameForScoreboard()+" run trigger do2queue set 2";
+        OtherUtils.executeCommand(server,command);
+        }
         return 1;
     }
 
-    public static int removePlayerFromQueue(ServerCommandSource source, String target) {
+    public static int removePlayerFromQueue(ServerCommandSource source, Collection<? extends ServerPlayerEntity> targets) {
         MinecraftServer server = source.getServer();
-        final PlayerEntity self = source.getPlayer();
 
-        dungeonQueue.removeFromQueueStr(target);
+        for (ServerPlayerEntity player : targets) {
+        String command = "execute as "+player.getNameForScoreboard()+" run trigger do2queue set 3";
+        OtherUtils.executeCommand(server,command);
+        }
         return 1;
     }
 
-    public static int moveQueue(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        MinecraftServer server = source.getServer();
-        final PlayerEntity self = source.getPlayer();
-
-        dungeonQueue.moveQueue();
-        return 1;
-    }
     public static int listQueue(ServerCommandSource source) {
         MinecraftServer server = source.getServer();
         final PlayerEntity self = source.getPlayer();
-        dungeonQueue.messageQueueToPlayer(self);
+
+        String command = "execute as "+self.getUuidAsString()+" run trigger do2queue set 6";
+        OtherUtils.executeCommand(server,command);
         return 1;
     }
-    public static SuggestionProvider<ServerCommandSource> getQueuePlayersSuggestionProvider() {
-        return (context, builder) -> {
-            List<String> queue = dungeonQueue.getQueue();
-            for (String playerName : queue) {
-                builder.suggest(playerName);
-            }
-            return builder.buildFuture();
-        };
-    }
-
 }

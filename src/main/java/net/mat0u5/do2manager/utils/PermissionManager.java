@@ -19,6 +19,10 @@ public class PermissionManager {
         if (isAdmin(player)) return true;
         return player.getCommandTags().contains("TCGGameMaster");
     }
+    public static boolean isMapBot(ServerPlayerEntity player) {
+        if (player == null) return false;
+        return player.getCommandTags().contains("MapGhost");
+    }
     public static boolean isModOwner(PlayerEntity player) {
         return isModOwner((ServerPlayerEntity) player);
     }
@@ -28,4 +32,8 @@ public class PermissionManager {
     public static boolean isTCGGameMaster(PlayerEntity player) {
         return isTCGGameMaster((ServerPlayerEntity) player);
     }
+    public static boolean isMapBot(PlayerEntity player) {
+        return isMapBot((ServerPlayerEntity) player);
+    }
+
 }
